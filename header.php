@@ -1,4 +1,7 @@
-<!doctype html>
+<?
+require_once(dirname(__FILE__) . '/app/lib/autoloader.php');
+
+?><!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8">

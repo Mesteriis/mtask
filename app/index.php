@@ -1,10 +1,9 @@
 <?
-use Integration\Database;
-use \Integration\Integration;
-
-require_once( $_SERVER['DOCUMENT_ROOT'] . '/app/lib/integration.php' );
-require_once( $_SERVER['DOCUMENT_ROOT'] . '/app/lib/database.php' );
 require_once( $_SERVER['DOCUMENT_ROOT'] . '/header.php' );
+
+use \MTask\Integration\Database;
+use \MTask\Integration\Integration;
+
 
 $obApp = new Integration();
 $obApp->auth($_REQUEST['code']);

@@ -6,7 +6,7 @@
  * Time: 12:20
  */
 
-namespace Integration;
+namespace MTask\Integration;
 
 /**
  * Класc, предназначенный для работы с api Bitrix24 портала

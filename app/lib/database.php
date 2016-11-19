@@ -6,7 +6,7 @@
  * Time: 10:41
  */
 
-namespace Integration;
+namespace MTask\Integration;
 
 
 class Database
