@@ -1,0 +1,2 @@
+<?
+$requestCode = $_REQUEST['code'];
