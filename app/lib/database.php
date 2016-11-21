@@ -45,19 +45,6 @@ class Database
 
 
 	/**
-	 * Формирование селекта для запроса
-	 *
-	 * @param $arSelect - массив с полями для выборки
-	 *
-	 * @return mixed
-	 */
-	protected static function getSelect($arSelect)
-	{
-		return implode(',', $arSelect);
-	}
-
-
-	/**
 	 * Формирование фильтра для запроса
 	 *
 	 * @param $arFilter - массив с полями для фильтрации
@@ -74,15 +61,104 @@ class Database
 		return $filter;
 	}
 
-	/*public function getList($entity, $arParams)
+
+	/**
+	 * Возвращает список элементов БД
+	 *
+	 * @param $entity - Таблица, из которой производим выборку
+	 * @param $arParams - Параметры запроса
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function getList($entity, $arParams)
 	{
+		if( empty($entity) ){
+			throw new \Exception('Incorrect parameters');
+		}
+		if( is_null($this->db) ){
+			throw new \Exception('Db connect error');
+		}
+
+		$arResult = $arFieldsParams = array();
+
+		/*
+		 * Формируем селект
+		 * */
+		$query = '';
+		$arSelect = array();
 		if( array_key_exists('select', $arParams) && !empty($arParams['select']) ){
-			$select = static::getSelect($arParams['select']);
+			foreach($arParams['select'] as $k => $v){
+				$arSelect[] = strtolower($v);
+				if( is_numeric($k) ){
+					$query .= ( empty($query) ? '' : ',' ) . $v;
+				}
+				elseif( is_string($k) ){
+					$query .= ( empty($query) ? '' : ',' ) . $k . ' as ' . $v;
+				}
+			}
 		}
-		if( array_key_exists('filter', $arParams) && !empty($arParams) ){
+		else{
+			$query .= '*' . ' ';
+		}
+
+		$query = 'SELECT ' . $query;
+
+		/*
+		 * Формируем фильтр
+		 * */
+		/*if( array_key_exists('filter', $arParams) && !empty($arParams) ){
 			$filter = static::getFilter($arParams['filter']);
+		}*/
+
+		$from = ' FROM ' . static::$prefix . $entity . ' ' . strtoupper($entity) . ' ';
+		/*
+		 * Формируем JOIN - ы
+		 * */
+		if( array_key_exists('runtime', $arParams) && !empty($arParams['runtime']) ){
+
+			foreach( $arParams['runtime'] as $alias => $arReference ){
+				$refKey = key($arReference['reference']);
+				$refVal = reset($arReference['reference']);
+				$reference = strtoupper($refKey) . '=' . strtoupper($refVal);
+
+				$from .= strtoupper($arReference['join_type']) . ' JOIN ' . static::$prefix . $arReference['entity'] . ' ' . $alias . ' ON ' . $reference . ' ';
+			}
 		}
-	}*/
+		$query .= $from;
+		
+		$query = $this->db->prepare($query);
+		$query->execute();
+
+		/*
+		 * Хак для разбора строк запроса с неограниченным числом параметров селекта
+		 * TODO: Записать хак в evernote
+		 * */
+		$meta = $query->result_metadata();
+		while ($field = $meta->fetch_field()) {
+			$var = $field->name;
+			$$var = null;
+			$arFieldsParams[$field->name] = &$$var;
+		}
+
+		call_user_func_array(array($query, 'bind_result'), $arFieldsParams);
+
+		while($query->fetch()) {
+			if( empty($arFieldsParams['TIME_SECONDS']) ){
+			    continue;
+			}
+
+			$arRow = array();
+			foreach ($arFieldsParams as $fieldName => $fieldVal) {
+				$arRow[$fieldName] = $fieldVal;
+			}
+			
+			$arResult[] = $arRow;
+		}
+		$query->close();
+		
+		return $arResult;
+	}
 
 
 	/**

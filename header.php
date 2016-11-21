@@ -1,5 +1,8 @@
 <?
-require_once(dirname(__FILE__) . '/app/lib/autoloader.php');
+ini_set("display_errors", 1);
+error_reporting(E_ERROR && E_WARNING);
+
+require_once(dirname(__FILE__) . '/app/lib/mtask.php');
 
 ?><!doctype html>
 <html>

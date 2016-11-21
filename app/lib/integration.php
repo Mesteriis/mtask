@@ -20,7 +20,10 @@ class Integration
 	 * Протокол для работы с порталом
 	 */
 	const PROTOCOL = 'https://';
-	
+
+	/**
+	 * Домен портала
+	 */
 	const DOMAIN = 'https://alxtest.bitrix24.ru';
 
 	/**
@@ -68,7 +71,7 @@ class Integration
 		elseif( time() >= $arAccessToken[1] && !empty($refreshToken) ){
 			$bNewTokens = true;
 			$this->arSettings['refresh_token'] = $refreshToken;
-			$obAuthInfo = json_decode($this->query('POST', 'https://alxtest.bitrix24.ru/oauth/token/?grant_type=refresh_token', $this->arSettings));
+			$obAuthInfo = json_decode($this->query('POST', 'self::DOMAIN/oauth/token/?grant_type=refresh_token', $this->arSettings));
 		}
 		/*
 		 * Если предан код, то запрашиваем токены
@@ -76,7 +79,7 @@ class Integration
 		elseif( !empty($code) ) {
 			$bNewTokens = true;
 			$this->arSettings['code'] = $code;
-			$obAuthInfo = json_decode($this->query('GET', 'https://alxtest.bitrix24.ru/oauth/token/?grant_type=authorization_code', $this->arSettings));
+			$obAuthInfo = json_decode($this->query('GET', 'self::DOMAIN/oauth/token/?grant_type=authorization_code', $this->arSettings));
 		}
 		
 		/*
